@@ -32,6 +32,15 @@ app.register_blueprint(app_views)
 @app.teardown_appcontext
 def teardown_db(exception):
     """
+    after each request, this method calls .close() (i.e. .remove()) on
+    the current SQLAlchemy Session
+    """
+    storage.close()
+
+
+@app.errorhandler(Exception)
+def global_error_handler(err):
+    """
     Global Route to handle All Error Status Codes
     """
     if isinstance(err, HTTPException):
@@ -43,6 +52,7 @@ def teardown_db(exception):
         message = {'error': err}
         code = 500
     return make_response(jsonify(message), code)
+
 
 def setup_global_errors():
     """
